@@ -1,5 +1,8 @@
 {
-  "bot": false,
+  "bot": {
+    "enabled": true,
+    "engine": "/bin/stockfish"
+  },
   "chars": {
     "white": {
       "pawn": "♙",

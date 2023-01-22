@@ -6,9 +6,9 @@ import chalk from 'chalk';
 import { Engine } from 'node-uci';
 import { readFileSync } from 'fs';
 
-const engine = new Engine('/bin/stockfish');
 const chess = new Chess();
 const { chars, bot } = JSON.parse(readFileSync(process.argv[2] || 'config.json', { encoding: 'UTF-8' }));
+const engine = new Engine(bot.engine);
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
 let i = 0;
 
@@ -100,7 +100,7 @@ async function main() {
     }
 
   } else if (move.startsWith('.bot')) {
-    if (bot) {
+    if (bot.enabled) {
       await engine.position(chess.fen());
       let pos = await engine.go({ depth: 15 });
       chess.move(pos.bestmove);
@@ -131,7 +131,7 @@ async function main() {
 }
 
 async function start() {
-  if (bot) await engine.init();
+  if (bot.enabled) await engine.init();
   while (!chess.isGameOver()) {
     await main();
     if (chess.isGameOver()) {
@@ -143,7 +143,7 @@ async function start() {
         insufficientMaterial: chess.isInsufficientMaterial(),
         threefoldRepetition: chess.isThreefoldRepetition(),
       });
-      if (bot) await engine.stop();
+      if (bot.enabled) await engine.stop();
       process.exit(0);
       break;
     }
