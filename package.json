@@ -4,7 +4,7 @@
   "bin": {
     "cli-js-chess": "index.js"
   },
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "A CLI Chess Game Made With Javascript",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
