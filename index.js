@@ -1,10 +1,11 @@
 #! /usr/bin/env node
-// Made By sx9dev On Mobile
 
 import inquirer from 'inquirer';
 import { Chess } from 'chess.js';
 import chalk from 'chalk';
+import { Engine } from 'node-uci';
 
+const engine = new Engine('/bin/stockfish');
 const chess = new Chess();
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
 const square = '■'
@@ -27,6 +28,7 @@ const chars = {
   }
 }
 let i = 0;
+await engine.init();
 
 async function main() {
   let board = chess.ascii()
@@ -68,8 +70,8 @@ async function main() {
       .moves (square)
       .load <fen>
       .eval <js-code>
+      .bot 
       .history
-      .bot
       .fen
       .undo
       .exit / .q
@@ -114,9 +116,10 @@ async function main() {
       console.log('Invalid FEN!');
     }
 
-  } else if (move.toLowerCase() === '.bot') {
-    console.log(chalk.red('WIP, Unavaible At The Moment'));
-    await sleep(2000);
+  } else if (move.startsWith('.bot')) {
+    await engine.position(chess.fen());
+    let pos = await engine.go({ depth: 15 });
+    chess.move(pos.bestmove);
 
   } else if (move.startsWith('.eval')) {
     let arg = move.slice(6);
@@ -149,6 +152,7 @@ while (!chess.isGameOver()) {
       insufficientMaterial: chess.isInsufficientMaterial(),
       threefoldRepetition: chess.isThreefoldRepetition(),
     });
+    await engine.stop();
     process.exit(0);
     break;
   };
