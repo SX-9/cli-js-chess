@@ -1,0 +1,19 @@
+{
+  "name": "cli-js-chess",
+  "type": "module",
+  "bin": "index.js".
+  "version": "1.0.0",
+  "description": "A CLI Chess Game Made With Javascript",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "chalk": "^5.2.0",
+    "chess.js": "^1.0.0-beta.2",
+    "inquirer": "^9.1.4",
+    "js-chess-engine": "^1.0.2"
+  }
+}
