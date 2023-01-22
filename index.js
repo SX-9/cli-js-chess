@@ -4,35 +4,17 @@ import inquirer from 'inquirer';
 import { Chess } from 'chess.js';
 import chalk from 'chalk';
 import { Engine } from 'node-uci';
+import { readFileSync } from 'fs';
 
 const engine = new Engine('/bin/stockfish');
 const chess = new Chess();
+const { chars, bot } = JSON.parse(readFileSync(process.argv[2] || 'config.json', { encoding: 'UTF-8' }));
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
-const square = '■'
-const chars = {
-  white: {
-    pawn: '♙',
-    king: '♔',
-    queen: '♕',
-    bishop: '♗',
-    night: '♘',
-    rook: '♖'
-  },
-  black: {
-    pawn: '♟',
-    king: '♚',
-    queen: '♛',
-    bishop: '♝',
-    night: '♞',
-    rook: '♜'
-  }
-}
 let i = 0;
-await engine.init();
 
 async function main() {
   let board = chess.ascii()
-    .replace(/\./g, square)
+    .replace(/\./g, chars.square)
     .replace(/P/g, chars.white.pawn)
     .replace(/K/g, chars.white.king)
     .replace(/Q/g, chars.white.queen)
@@ -70,7 +52,7 @@ async function main() {
       .moves (square)
       .load <fen>
       .eval <js-code>
-      .bot 
+      .bot
       .history
       .fen
       .undo
@@ -117,9 +99,14 @@ async function main() {
     }
 
   } else if (move.startsWith('.bot')) {
-    await engine.position(chess.fen());
-    let pos = await engine.go({ depth: 15 });
-    chess.move(pos.bestmove);
+    if (bot) {
+      await engine.position(chess.fen());
+      let pos = await engine.go({ depth: 15 });
+      chess.move(pos.bestmove);
+    } else {
+      console.log(chalk.red('Bot Is Disabled'));
+      await sleep(2000);
+    }
 
   } else if (move.startsWith('.eval')) {
     let arg = move.slice(6);
@@ -142,18 +129,23 @@ async function main() {
   return new Promise((resolve, reject) => resolve('done'));
 }
 
-while (!chess.isGameOver()) {
-  await main();
-  if (chess.isGameOver()) {
-    console.log({
-      checkmate: chess.isCheckmate(),
-      draw: chess.isDraw(),
-      stalemate: chess.isStalemate(),
-      insufficientMaterial: chess.isInsufficientMaterial(),
-      threefoldRepetition: chess.isThreefoldRepetition(),
-    });
-    await engine.stop();
-    process.exit(0);
-    break;
-  };
+async function start() {
+  if (bot) await engine.init();
+  while (!chess.isGameOver()) {
+    await main();
+    if (chess.isGameOver()) {
+      console.log({
+        checkmate: chess.isCheckmate(),
+        draw: chess.isDraw(),
+        stalemate: chess.isStalemate(),
+        insufficientMaterial: chess.isInsufficientMaterial(),
+        threefoldRepetition: chess.isThreefoldRepetition(),
+      });
+      if (bot) await engine.stop();
+      process.exit(0);
+      break;
+    }
+  }
 }
+
+start();

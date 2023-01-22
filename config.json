@@ -1,0 +1,22 @@
+{
+  "bot": false,
+  "chars": {
+    "white": {
+      "pawn": "♙",
+      "king": "♔",
+      "queen": "♕",
+      "bishop": "♗",
+      "night": "♘",
+      "rook": "♖"
+    },
+    "black": {
+      "pawn": "♟",
+      "king": "♚",
+      "queen": "♛",
+      "bishop": "♝",
+      "night": "♞",
+      "rook": "♜"
+    },
+    "square": "■"
+  }
+}
