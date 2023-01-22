@@ -1,4 +1,4 @@
-#! /bin/bash
+#! /bin/node
 // Made By sx9dev On Mobile
 
 import inquirer from 'inquirer';
