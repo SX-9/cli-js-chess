@@ -4,7 +4,7 @@ import inquirer from 'inquirer';
 import { Chess } from 'chess.js';
 import chalk from 'chalk';
 import { Engine } from 'node-uci';
-import { readFileSync } from 'fs';
+import { readFileSync, writeFileSync } from 'fs';
 
 const chess = new Chess();
 const { chars, bot } = JSON.parse(readFileSync(process.argv[2] || 'config.json', { encoding: 'UTF-8' }));
@@ -50,8 +50,9 @@ async function main() {
 
       Commands:
       .moves (square)
-      .load <fen>
+      .load <game-fen>
       .eval <js-code>
+      .conf
       .bot
       .history
       .fen
@@ -118,6 +119,11 @@ async function main() {
     }
     await sleep(5000);
 
+  } else if (move.toLowerCase() === '.gen') {
+    writeFileSync('cli-js-chess-config.json', JSON.stringify({ bot: bot, chars: chars, }, null, 2));
+    console.log(chalk.cyan('Config File Generated, To Use It Rerun Javascript Chess With The File Path As The Second Argument!'));
+    await sleep(5000);
+
   } else {
     try {
       chess.move(move);
@@ -135,6 +141,7 @@ async function start() {
   while (!chess.isGameOver()) {
     await main();
     if (chess.isGameOver()) {
+      console.clear();
       console.log({
         fen: chess.fen(),
         checkmate: chess.isCheckmate(),
