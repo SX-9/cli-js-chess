@@ -1,4 +1,4 @@
-#! /bin/node
+#! /usr/bin/env node
 // Made By sx9dev On Mobile
 
 import inquirer from 'inquirer';
