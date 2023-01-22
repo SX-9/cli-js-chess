@@ -1,19 +1,29 @@
 {
   "name": "cli-js-chess",
   "type": "module",
-  "bin": "index.js".
+  "bin": {
+    "cli-js-chess": "index.js"
+  },
   "version": "1.0.0",
   "description": "A CLI Chess Game Made With Javascript",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
-  "author": "",
+  "author": "sx9dev",
   "license": "ISC",
   "dependencies": {
     "chalk": "^5.2.0",
     "chess.js": "^1.0.0-beta.2",
-    "inquirer": "^9.1.4",
-    "js-chess-engine": "^1.0.2"
-  }
+    "inquirer": "^9.1.4"
+  },
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/SX-9/cli-js-chess.git"
+  },
+  "bugs": {
+    "url": "https://github.com/SX-9/cli-js-chess/issues"
+  },
+  "homepage": "https://github.com/SX-9/cli-js-chess#readme"
 }

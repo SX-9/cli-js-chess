@@ -1,3 +1,6 @@
+#! /bin/bash
+// Made By sx9dev On Mobile
+
 import inquirer from 'inquirer';
 import { Chess } from 'chess.js';
 import chalk from 'chalk';
