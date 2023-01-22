@@ -63,6 +63,7 @@ async function main() {
     await sleep(5000);
 
   } else if (move.toLowerCase() === '.q' || move.toLowerCase() === '.exit') {
+    console.log(chalk.red('FEN:'), chalk.cyan(chess.fen()));
     process.exit(0);
 
   } else if (move.toLowerCase() === '.history') {
@@ -135,6 +136,7 @@ async function start() {
     await main();
     if (chess.isGameOver()) {
       console.log({
+        fen: chess.fen(),
         checkmate: chess.isCheckmate(),
         draw: chess.isDraw(),
         stalemate: chess.isStalemate(),
