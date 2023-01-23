@@ -3,12 +3,12 @@ A Terminal Chess Game Made With Javascript
 
 ## Usage
 ```
-npx cli-js-chess 
+npx cli-js-chess path/to/config.json
 
 # Or Install For Offline Use
 
 npm i -g cli-js-chess
-js-chess
+js-chess path/to/config.json
 ```
 
 ## How To Play
