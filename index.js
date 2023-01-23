@@ -8,7 +8,7 @@ import { readFileSync, writeFileSync } from 'fs';
 
 const chess = new Chess();
 const { chars, bot } = process.argv[2] ? JSON.parse(readFileSync(process.argv[2], { encoding: 'UTF-8' })) : {
-  "bot": {
+  "bot": {  
     "enabled": false,
     "engine": "/bin/stockfish"
   },
@@ -90,7 +90,7 @@ async function main() {
       .moves (square)
       .load <game-fen>
       .eval <js-code>
-      .conf
+      .gen
       .bot
       .history
       .fen
