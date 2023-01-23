@@ -12,6 +12,20 @@ const engine = new Engine(bot.engine);
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
 let i = 0;
 
+function lostBy() {
+  let out = {
+    exit: 0
+  };
+  if (chess.isCheckmate()) out.mess = chalk.green('Checkmate By ' + ( chess.turn() === 'w' ? 'White' : 'Black' ))
+  if (chess.isDraw()) {
+    out.exit = 1;
+    if (chess.isStalemate()) out.mess = 'Draw By Stalemate';
+    if (chess.isInsufficientMaterial()) out.mess = 'Draw By Insufficient Material';
+    if (chess.isThreefoldRepetition()) out.mess = 'Draw By Threefold Repetition';
+  };
+  return out;
+}
+
 async function main() {
   let board = chess.ascii()
     .replace(/\./g, chars.square)
@@ -141,18 +155,9 @@ async function start() {
   while (!chess.isGameOver()) {
     await main();
     if (chess.isGameOver()) {
-      console.clear();
-      console.log({
-        fen: chess.fen(),
-        checkmate: chess.isCheckmate(),
-        draw: chess.isDraw(),
-        stalemate: chess.isStalemate(),
-        insufficientMaterial: chess.isInsufficientMaterial(),
-        threefoldRepetition: chess.isThreefoldRepetition(),
-      });
-      if (bot.enabled) await engine.stop();
-      process.exit(0);
-      break;
+      console.log(lostBy().mess);
+      console.log(chalk.red('FEN:'), chalk.cyan(chess.fen()));
+      process.exit(lostBy().exit);
     }
   }
 }
