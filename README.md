@@ -110,9 +110,8 @@ Empty Square.
 
 ## Todo
 
-- [O] Custom Chess Engine
-- [X] Auto Play With Bot
-- [X] Multiplayer
+- [X] Custom Chess Engine
+- [ ] Multiplayer
 
 ## Tested 
 
