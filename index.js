@@ -7,7 +7,7 @@ import { Engine } from 'node-uci';
 import { readFileSync, writeFileSync } from 'fs';
 
 const chess = new Chess();
-const { chars, bot } = JSON.parse(readFileSync(process.argv[2], { encoding: 'UTF-8' })) || {
+const { chars, bot } = process.argv[2] ? JSON.parse(readFileSync(process.argv[2], { encoding: 'UTF-8' })) : {
   "bot": {
     "enabled": false,
     "engine": "/bin/stockfish"
