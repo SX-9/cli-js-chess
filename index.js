@@ -7,7 +7,31 @@ import { Engine } from 'node-uci';
 import { readFileSync, writeFileSync } from 'fs';
 
 const chess = new Chess();
-const { chars, bot } = JSON.parse(readFileSync(process.argv[2] || 'config.json', { encoding: 'UTF-8' }));
+const { chars, bot } = JSON.parse(readFileSync(process.argv[2], { encoding: 'UTF-8' })) || {
+  "bot": {
+    "enabled": false,
+    "engine": "/bin/stockfish"
+  },
+  "chars": {
+    "white": {
+      "pawn": "♙",
+      "king": "♔",
+      "queen": "♕",
+      "bishop": "♗",
+      "night": "♘",
+      "rook": "♖"
+    },
+    "black": {
+      "pawn": "♟",
+      "king": "♚",
+      "queen": "♛",
+      "bishop": "♝",
+      "night": "♞",
+      "rook": "♜"
+    },
+    "square": "■"
+  }
+};
 const engine = new Engine(bot.engine);
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
 let i = 0;
