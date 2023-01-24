@@ -1,13 +1,23 @@
 #! /usr/bin/env node
 
-import inquirer from 'inquirer';
-import { Chess } from 'chess.js';
 import chalk from 'chalk';
+import express from 'express';
+import inquirer from 'inquirer';
+import parser from 'body-parser';
+import { Chess } from 'chess.js';
 import { Engine } from 'node-uci';
-import { readFileSync, writeFileSync } from 'fs';
+import { appendFile, readFileSync, writeFileSync } from 'fs';
 
+const app = express();
 const chess = new Chess();
-const { chars, bot } = process.argv[2] ? JSON.parse(readFileSync(process.argv[2], { encoding: 'UTF-8' })) : {
+const config = process.argv[2] ? JSON.parse(readFileSync(process.argv[2], { encoding: 'UTF-8' })) : {
+  "server": {
+    "port": 8075,
+    "pass": {
+      "white": "white",
+      "black": "black"
+    }
+  },
   "bot": {  
     "enabled": false,
     "engine": "/bin/stockfish"
@@ -32,9 +42,28 @@ const { chars, bot } = process.argv[2] ? JSON.parse(readFileSync(process.argv[2]
     "square": "■"
   }
 };
+const { chars, bot, server } = config;
 const engine = new Engine(bot.engine);
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
 let i = 0;
+
+app.use(parser.json());
+app.get('/', (req, res) => res.json({ endpoints: { get: [ '/moves', '/history', '/fen', '/ascii' ], post: [ '/move' ] } }));
+app.post('/move', (req, res) => {
+  if (req.body.pass !== server.pass.white && req.body.pass !== server.pass.black) return res.status(401).json({ mess: 'Access Denied!' });
+  if (req.body.pass === server.pass.black && chess.turn() !== 'b') return res.status(401).json({ mess: 'Its Not Your Turn!' });
+  if (req.body.pass === server.pass.white && chess.turn() !== 'w') return res.status(401).json({ mess: 'Its Not Your Turn!' });
+  try {
+    chess.move(req.body.move);
+    res.json({ mess: 'Done!' });
+  } catch {
+    res.json({ mess: 'Invalid Move!' });
+  }
+});
+app.get('/fen', (req, res) => res.json({ fen: chess.fen() }));
+app.get('/history', (req, res) => res.json({ history: chess.history() }));
+app.get('/moves', (req, res) => res.json({ moves: chess.moves({ square: req.body.square }) }));
+app.get('/ascii', (req, res) => res.json({ ascii: chess.ascii() }))
 
 function lostBy() {
   let out = {
@@ -95,6 +124,7 @@ async function main() {
       .history
       .fen
       .undo
+      .serve
       .exit / .q
 
     `));
@@ -157,10 +187,17 @@ async function main() {
     }
     await sleep(5000);
 
+  } else if (move.toLowerCase === '.refresh') {
+    await sleep(500);
+
   } else if (move.toLowerCase() === '.gen') {
-    writeFileSync('cli-js-chess-config.json', JSON.stringify({ bot: bot, chars: chars, }, null, 2));
+    writeFileSync('cli-js-chess-config.json', JSON.stringify(config, null, 2));
     console.log(chalk.cyan('Config File Generated, To Use It Rerun Javascript Chess With The File Path As The Second Argument!'));
     await sleep(5000);
+
+  } else if (move.toLowerCase() === '.serve') {
+    app.listen(server.port, () => console.log(chalk.green('Server Running On Port'), server.port));
+    await sleep(2000);
 
   } else {
     try {
