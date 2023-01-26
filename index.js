@@ -1,13 +1,18 @@
 #! /usr/bin/env node
 
+import cors from 'cors';
 import chalk from 'chalk';
 import express from 'express';
 import inquirer from 'inquirer';
-import parser from 'body-parser';
+import { dirname } from 'path';
 import { Chess } from 'chess.js';
 import { Engine } from 'node-uci';
+import { fileURLToPath } from 'url';
 import { appendFile, readFileSync, writeFileSync } from 'fs';
+import { StringDecoder } from 'string_decoder';
 
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 const app = express();
 const chess = new Chess();
 const config = process.argv[2] ? JSON.parse(readFileSync(process.argv[2], { encoding: 'UTF-8' })) : {
@@ -47,23 +52,16 @@ const engine = new Engine(bot.engine);
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
 let i = 0;
 
-app.use(parser.json());
-app.get('/', (req, res) => res.json({ endpoints: { get: [ '/moves', '/history', '/fen', '/ascii' ], post: [ '/move' ] } }));
-app.post('/move', (req, res) => {
-  if (req.body.pass !== server.pass.white && req.body.pass !== server.pass.black) return res.status(401).json({ mess: 'Access Denied!' });
-  if (req.body.pass === server.pass.black && chess.turn() !== 'b') return res.status(401).json({ mess: 'Its Not Your Turn!' });
-  if (req.body.pass === server.pass.white && chess.turn() !== 'w') return res.status(401).json({ mess: 'Its Not Your Turn!' });
-  try {
-    chess.move(req.body.move);
-    res.json({ mess: 'Done!' });
-  } catch {
-    res.json({ mess: 'Invalid Move!' });
-  }
-});
-app.get('/fen', (req, res) => res.json({ fen: chess.fen() }));
-app.get('/history', (req, res) => res.json({ history: chess.history() }));
-app.get('/moves', (req, res) => res.json({ moves: chess.moves({ square: req.body.square }) }));
-app.get('/ascii', (req, res) => res.json({ ascii: chess.ascii() }))
+app.use(cors({ origin: '*' }));
+app.use(express.json());
+app.get('/', (req, res) => res.sendFile(__dirname + '/gui.html'));
+app.get('/api', (req, res) => res.json({
+  fen: chess.fen(),
+  moves: chess.moves(),
+  history: chess.history(),
+  side: chess.turn(),
+  checked: chess.isCheck(),
+}));
 
 function lostBy() {
   let out = {
@@ -119,12 +117,12 @@ async function main() {
       .moves (square)
       .load <game-fen>
       .eval <js-code>
+      .history
+      .serve
+      .undo
       .gen
       .bot
-      .history
       .fen
-      .undo
-      .serve
       .exit / .q
 
     `));
@@ -187,7 +185,7 @@ async function main() {
     }
     await sleep(5000);
 
-  } else if (move.toLowerCase === '.refresh') {
+  } else if (move.toLowerCase() === '.refresh') {
     await sleep(500);
 
   } else if (move.toLowerCase() === '.gen') {

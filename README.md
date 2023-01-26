@@ -108,10 +108,19 @@ An Emoji, Letter, Or Anything.
 #### chars.square => string
 Empty Square.
 
+### server
+Settings For The `.serve` Command.
+
+#### serevr.port => number
+Port For The HTTP Server.
+
+#### server.pass.*color* => string
+(WIP - Not Used In The Code) Password For The Multiplayer Server.
+
 ## Todo
 
 - [X] Custom Chess Engine
-- [ ] Multiplayer
+- [ ] (Almost Done) Multiplayer
 
 ## Tested 
 

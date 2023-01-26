@@ -8,10 +8,53 @@
       href="https://unpkg.com/@chrisoakman/chessboardjs@1.0.0/dist/chessboard-1.0.0.min.css"
       integrity="sha384-q94+BZtLrkL1/ohfjR8c6L+A6qzNH9R2hBLwyoAfu3i/WCvQjzL2RQJ3uNHDISdU"
       crossorigin="anonymous">
+    <style>
+        * {
+            color-scheme: dark;
+            font-family: 'Courier New', Courier, monospace;
+        }
+
+        html {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        body {
+            height: 95vh;
+            width: fit-content;
+            display: grid;
+            align-items: center;
+            justify-content: center;
+            grid-template-rows: 1fr;
+            grid-template-columns: 1fr 1fr;
+            grid-gap: 1em;
+        }
+        #yellow { color: yellow; }
+        #green, .green { color: lime; }
+        .red { color: red; }
+        #history { color: cyan; }
+        #moves {
+            padding: .3em;
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
+            grid-gap: .3em;
+        }
+    </style>
     <title>Javascript Chess</title>
 </head>
 <body>
     <div id="board1" style="width: 400px"></div>
+    <div id="panel">
+        <h1><span id="yellow">Javascript</span><span id="green">Chess</span></h1>
+        <h4>You Are Currently Viewing A Game</h4>
+        <p><span id="side">?</span> Is <span id="checked">?</span></p>
+        <p>History: <span id="history">No Moves Yet</span></p>
+        <details>
+            <summary>Moves: (Click To Reveal)</summary>
+            <div id="moves"></div>
+        </details>
+        <p>Powered By cli-js-chess (npm) And Made By <a href="https://sx9.is-a.dev">sx9dev</a></p>
+    </div>
     <script src="https://code.jquery.com/jquery-3.5.1.min.js"
         integrity="sha384-ZvpUoO/+PpLXR1lu4jmpXWu80pZlYUAfxl5NsBMWOEPSjUn/6Z/hRTt8+pR6L4N2"
         crossorigin="anonymous"></script>
@@ -19,7 +62,31 @@
         integrity="sha384-8Vi8VHwn3vjQ9eUHUxex3JSN/NFqUg3QbPyX8kWyb93+8AC/pPWTzj+nHtbC5bxD"
         crossorigin="anonymous"></script>
     <script>
-        const board = Chessboard('board1', 'start');
+        const board = Chessboard('board1', {
+            draggable: true,
+            pieceTheme: 'https://chessboardjs.com/img/chesspieces/wikipedia/{piece}.png'
+        });
+        async function reloadGame() {
+            let { side, checked, moves, history, fen } = await fetch('/api').then(r => r.json());
+            document.getElementById('side').innerText = side === 'w' ? 'White' : 'Black';
+            document.getElementById('checked').innerText = checked ? 'Checked' : 'Safe';
+            if (checked) {
+                document.getElementById('checked').classList.remove('green');
+                document.getElementById('checked').classList.add('red');
+            } else {
+                document.getElementById('checked').classList.remove('red');
+                document.getElementById('checked').classList.add('green');
+            }
+            document.getElementById('history').innerText = history.slice(Math.max(history.length - 10, 0));
+            document.getElementById('moves').innerHTML = '';
+            moves.forEach(move => {
+                let el = document.createElement('button');
+                el.innerText = move;
+                document.getElementById('moves').appendChild(el);
+            });
+            board.position(fen);
+        }
+        setInterval(reloadGame, 500);
     </script>
 </body>
 </html>
